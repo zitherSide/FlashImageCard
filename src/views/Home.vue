@@ -1,28 +1,51 @@
 <template>
   <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar>
-        <ion-title>Blank</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    
     <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
+      <ion-header :translucent="true">
         <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
+          <ion-title>Flash Image Card</ion-title>
         </ion-toolbar>
       </ion-header>
     
-      <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-      </div>
+      <ion-header collapse="condense">
+        <ion-toolbar>
+          <ion-title size="large">Decks</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-menu-toggle>
+        menu
+      </ion-menu-toggle>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{word}}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-buttons>
+            <ion-button>Image</ion-button>
+            <ion-button>Text</ion-button>
+            <ion-button>Video</ion-button>
+          </ion-buttons>
+          <ion-buttons>
+            <ion-button color="danger"><ion-icon name="close"></ion-icon></ion-button>
+            <ion-button color="success"><ion-icon name="add"></ion-icon></ion-button>
+            <ion-button color="success">easy</ion-button>
+          </ion-buttons>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-fab vertical="bottom" horizontal="end">
+        <ion-fab-button><ion-icon name="close"></ion-icon></ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonCol, IonRow, 
+  IonFab, IonFabButton, IonIcon,
+  IonCard } from '@ionic/vue';
+import { add, close, checkmark } from 'ionicons/icons';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -32,7 +55,24 @@ export default defineComponent({
     IonHeader,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    //IonGrid,
+    //IonCol,
+    //IonRow,
+    IonFab,
+    IonFabButton,
+    IonIcon,
+    IonCard
+  },
+  setup() {
+    return {
+      close,
+    }
+  },
+  data () {
+    return {
+      word: "cat"
+    }
   }
 });
 </script>
@@ -40,6 +80,7 @@ export default defineComponent({
 <style scoped>
 #container {
   text-align: center;
+  align-content: center;
   
   position: absolute;
   left: 0;
@@ -65,4 +106,5 @@ export default defineComponent({
 #container a {
   text-decoration: none;
 }
+
 </style>
