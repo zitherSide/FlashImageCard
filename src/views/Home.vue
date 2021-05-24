@@ -22,13 +22,13 @@
         </ion-card-header>
         <ion-card-content>
           <ion-buttons>
-            <ion-button>Image</ion-button>
-            <ion-button>Text</ion-button>
-            <ion-button>Video</ion-button>
+            <ion-button @click="search(word, 'isch')">Image</ion-button>
+            <ion-button @click="search(word)">Text</ion-button>
+            <ion-button @click="search(word, 'vid')">Video</ion-button>
           </ion-buttons>
           <ion-buttons>
             <ion-button color="danger"><ion-icon name="close"></ion-icon></ion-button>
-            <ion-button color="success"><ion-icon name="add"></ion-icon></ion-button>
+            <ion-button color="success">o<ion-icon name="add"></ion-icon></ion-button>
             <ion-button color="success">easy</ion-button>
           </ion-buttons>
         </ion-card-content>
@@ -47,6 +47,10 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonCol, 
   IonCard } from '@ionic/vue';
 import { add, close, checkmark } from 'ionicons/icons';
 import { defineComponent } from 'vue';
+import { InAppBrowser } from '@ionic-native/in-app-browser'
+
+const SearchURL = 'https://www.google.com/search?q='
+const SearchOption = '&tbm='
 
 export default defineComponent({
   name: 'Home',
@@ -62,7 +66,7 @@ export default defineComponent({
     IonFab,
     IonFabButton,
     IonIcon,
-    IonCard
+    IonCard,
   },
   setup() {
     return {
@@ -72,6 +76,16 @@ export default defineComponent({
   data () {
     return {
       word: "cat"
+    }
+  },
+  methods: {
+    search(query: string, option: string){
+      let url = SearchURL + '"' + query + '"';
+      if(option){
+        url += SearchOption + option
+      }
+
+      InAppBrowser.create(url)
     }
   }
 });
