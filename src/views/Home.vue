@@ -7,18 +7,9 @@
         </ion-toolbar>
       </ion-header>
     
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Decks</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      <ion-menu-toggle>
-        menu
-      </ion-menu-toggle>
-
       <ion-card>
         <ion-card-header>
-          <ion-card-title>{{word}}</ion-card-title>
+          <ion-card-title>{{words}}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <ion-buttons>
@@ -35,7 +26,7 @@
       </ion-card>
 
       <ion-fab vertical="bottom" horizontal="end">
-        <ion-fab-button><ion-icon name="close"></ion-icon></ion-fab-button>
+        <ion-fab-button @click="showWordDlg"><ion-icon name="add"></ion-icon></ion-fab-button>
       </ion-fab>
     </ion-content>
   </ion-page>
@@ -43,14 +34,21 @@
 
 <script lang="ts">
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonCol, IonRow, 
-  IonFab, IonFabButton, IonIcon,
-  IonCard } from '@ionic/vue';
+  IonFab, IonFabButton, IonIcon, IonButton, IonButtons,
+  IonCard, IonCardHeader, IonCardContent, IonCardTitle,
+  alertController } from '@ionic/vue';
 import { add, close, checkmark } from 'ionicons/icons';
 import { defineComponent } from 'vue';
 import { InAppBrowser } from '@ionic-native/in-app-browser'
+import { Storage } from '@capacitor/storage'
 
 const SearchURL = 'https://www.google.com/search?q='
 const SearchOption = '&tbm='
+
+const DefaultExpiration = {
+  expiration: Date.now(),
+  lastTerm: 1
+}
 
 export default defineComponent({
   name: 'Home',
@@ -66,16 +64,35 @@ export default defineComponent({
     IonFab,
     IonFabButton,
     IonIcon,
+    IonButton,
+    IonButtons,
     IonCard,
+    IonCardHeader,
+    IonCardContent,
+    IonCardTitle
   },
   setup() {
     return {
       close,
+      add
     }
+  },
+  mounted() {
+    const expiration = {
+      expiration: Date.now(),
+      lastTerm: 1
+    }
+
+    Storage.set({
+      key: 'cat',
+      value: JSON.stringify(expiration)
+    })
+
+    Storage.keys().then( res => this.words = res.keys)
   },
   data () {
     return {
-      word: "cat"
+      words: ['']
     }
   },
   methods: {
@@ -86,6 +103,39 @@ export default defineComponent({
       }
 
       InAppBrowser.create(url)
+    },
+    addWord(word: string){
+      Storage.set({
+        key: word,
+        value: JSON.stringify(DefaultExpiration)
+      })
+    },
+    async showWordDlg() {
+      const dlg = await alertController.create({
+        header: 'New Word',
+        inputs: [
+          {
+            name: 'word',
+            placeholder: 'new word'
+          }
+        ],
+        buttons: [
+          {
+            text: 'OK',
+            handler: data => {
+              Storage.set({
+                key: data.word,
+                value: JSON.stringify(DefaultExpiration)
+              })
+            }
+          },
+          {
+            text: 'Cancel'
+          } 
+        ]
+      })
+
+      return dlg.present()
     }
   }
 });
