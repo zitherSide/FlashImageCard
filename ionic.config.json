@@ -1,5 +1,7 @@
 {
   "name": "FlashImageCard",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "vue"
 }

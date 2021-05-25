@@ -9,18 +9,18 @@
     
       <ion-card>
         <ion-card-header>
-          <ion-card-title>{{words}}</ion-card-title>
+          <ion-card-title>{{currentWord ? currentWord.word : ''}}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <ion-buttons>
-            <ion-button @click="search(word, 'isch')">Image</ion-button>
-            <ion-button @click="search(word)">Text</ion-button>
-            <ion-button @click="search(word, 'vid')">Video</ion-button>
+            <ion-button @click="search(currentWord.word, 'isch')">Image</ion-button>
+            <ion-button @click="search(currentWord.word)">Text</ion-button>
+            <ion-button @click="search(currentWord.word, 'vid')">Video</ion-button>
           </ion-buttons>
           <ion-buttons>
-            <ion-button color="danger"><ion-icon name="close"></ion-icon></ion-button>
-            <ion-button color="success">o<ion-icon name="add"></ion-icon></ion-button>
-            <ion-button color="success">easy</ion-button>
+            <ion-button color="danger" @click="wrong(currentWord)"><ion-icon name="close"></ion-icon></ion-button>
+            <ion-button color="success" @click="ok(currentWord)">o<ion-icon name="add"></ion-icon></ion-button>
+            <ion-button color="success" @click="easy(currentWord)">easy</ion-button>
           </ion-buttons>
         </ion-card-content>
       </ion-card>
@@ -44,10 +44,46 @@ import { Storage } from '@capacitor/storage'
 
 const SearchURL = 'https://www.google.com/search?q='
 const SearchOption = '&tbm='
+const DayToMilliSec = 24 * 60 * 60 * 1000
+
+interface WordData {
+  word: string;
+  lastTerm: number;
+}
 
 const DefaultExpiration = {
   expiration: Date.now(),
   lastTerm: 1
+}
+
+const makeExpiration = (expirationDate: number, lastTerm: number) => { 
+  return {
+    expiration: expirationDate,
+    lastTerm: lastTerm
+  }
+} 
+
+const saveWord = (word: string, expiration: object) => {
+  Storage.set({
+    key: word,
+    value: JSON.stringify(expiration)
+  })
+}
+
+const loadWord = async (result: Array<WordData>) => {
+  const keysObj = await Storage.keys()
+
+  keysObj.keys.forEach( async key => {
+    const expJson = await Storage.get({ key })
+    const exp = JSON.parse(expJson.value || '')
+
+    if(exp.expiration <= Date.now()){
+      result.push({
+        word: key,
+        lastTerm: exp.lastTerm as number
+      })
+    }
+  })
 }
 
 export default defineComponent({
@@ -77,22 +113,17 @@ export default defineComponent({
       add
     }
   },
-  mounted() {
-    const expiration = {
-      expiration: Date.now(),
-      lastTerm: 1
-    }
-
-    Storage.set({
-      key: 'cat',
-      value: JSON.stringify(expiration)
-    })
-
-    Storage.keys().then( res => this.words = res.keys)
+  async mounted() {
+    loadWord(this.expiredWords)
   },
   data () {
     return {
-      words: ['']
+      expiredWords: Array<WordData>()
+    }
+  },
+  computed: {
+    currentWord (): WordData {
+      return this.expiredWords[0]
     }
   },
   methods: {
@@ -109,6 +140,29 @@ export default defineComponent({
         key: word,
         value: JSON.stringify(DefaultExpiration)
       })
+    },
+    wrong(data: WordData){
+      saveWord(data.word, makeExpiration(Date.now(), 1))
+      
+      //間違えたやつは最後尾にする
+      const wrongWord = this.expiredWords.shift();
+      if(wrongWord){
+        this.expiredWords.push(wrongWord)
+      }
+    },
+    ok(data: WordData){
+      const term = Math.floor(data.lastTerm * 1.5)
+      saveWord(data.word, 
+        makeExpiration(Date.now() + term * DayToMilliSec, term))
+      
+      this.expiredWords.shift()
+    },
+    easy(data: WordData){
+      const term = Math.floor(data.lastTerm * 2.0)
+      saveWord(data.word,
+       makeExpiration(Date.now() + term * DayToMilliSec, term))
+
+      this.expiredWords.shift()
     },
     async showWordDlg() {
       const dlg = await alertController.create({
