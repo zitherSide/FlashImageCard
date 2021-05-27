@@ -1,15 +1,12 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-      <ion-header :translucent="true">
-        <ion-toolbar>
-          <ion-title>Flash Image Card</ion-title>
-        </ion-toolbar>
-      </ion-header>
-    
-      <ion-card>
+      <ion-item-divider/>
+      <ion-item-divider/>
+      <ion-card v-if="currentWord">
         <ion-card-header>
           <ion-card-title>{{currentWord ? currentWord.word : ''}}</ion-card-title>
+          <ion-card-subtitle>{{currentWord}}</ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
           <ion-buttons>
@@ -24,6 +21,9 @@
           </ion-buttons>
         </ion-card-content>
       </ion-card>
+      <ion-content v-else>
+        Done!
+      </ion-content>
 
       <ion-fab vertical="bottom" horizontal="end">
         <ion-fab-button @click="showWordDlg"><ion-icon name="add"></ion-icon></ion-fab-button>
@@ -33,9 +33,10 @@
 </template>
 
 <script lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonCol, IonRow, 
+import { IonContent, IonPage, IonGrid, IonCol, IonRow, 
   IonFab, IonFabButton, IonIcon, IonButton, IonButtons,
-  IonCard, IonCardHeader, IonCardContent, IonCardTitle,
+  IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle,
+  IonItemDivider,
   alertController } from '@ionic/vue';
 import { add, close, checkmark } from 'ionicons/icons';
 import { defineComponent } from 'vue';
@@ -48,6 +49,7 @@ const DayToMilliSec = 24 * 60 * 60 * 1000
 
 interface WordData {
   word: string;
+  expiration: Date;
   lastTerm: number;
 }
 
@@ -80,6 +82,7 @@ const loadWord = async (result: Array<WordData>) => {
     if(exp.expiration <= Date.now()){
       result.push({
         word: key,
+        expiration: new Date(exp.expiration),
         lastTerm: exp.lastTerm as number
       })
     }
@@ -90,22 +93,16 @@ export default defineComponent({
   name: 'Home',
   components: {
     IonContent,
-    IonHeader,
     IonPage,
-    IonTitle,
-    IonToolbar,
     //IonGrid,
     //IonCol,
     //IonRow,
     IonFab,
     IonFabButton,
     IonIcon,
-    IonButton,
-    IonButtons,
-    IonCard,
-    IonCardHeader,
-    IonCardContent,
-    IonCardTitle
+    IonButton, IonButtons,
+    IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle,
+    IonItemDivider
   },
   setup() {
     return {
@@ -196,6 +193,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 #container {
   text-align: center;
   align-content: center;
