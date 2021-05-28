@@ -15,9 +15,21 @@
 </template>
 
 <script lang="ts">
-import { IonApp, IonRouterOutlet, IonButton, IonButtons, IonMenuButton,
-  IonToolbar, IonTitle, IonItemDivider } from '@ionic/vue';
+import { IonApp, IonRouterOutlet, IonButton, IonButtons,
+  IonToolbar, IonTitle } from '@ionic/vue';
 import { defineComponent } from 'vue';
+
+export const DayToMilliSec = 24 * 60 * 60 * 1000
+export const FloorDate = (date: number) => {
+  const days = Math.floor(date / DayToMilliSec)
+  return DayToMilliSec * days
+}
+export const MakeExpiration = (expirationDate: number, lastTerm: number) => { 
+  return {
+    expiration: FloorDate(expirationDate),
+    lastTerm: lastTerm
+  }
+} 
 
 export default defineComponent({
   name: 'App',

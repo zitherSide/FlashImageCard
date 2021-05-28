@@ -33,19 +33,19 @@
 </template>
 
 <script lang="ts">
-import { IonContent, IonPage, IonGrid, IonCol, IonRow, 
+import { IonContent, IonPage, 
   IonFab, IonFabButton, IonIcon, IonButton, IonButtons,
   IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle,
   IonItemDivider,
   alertController } from '@ionic/vue';
-import { add, close, checkmark } from 'ionicons/icons';
+import { add, close } from 'ionicons/icons';
 import { defineComponent } from 'vue';
 import { InAppBrowser } from '@ionic-native/in-app-browser'
 import { Storage } from '@capacitor/storage'
+import { DayToMilliSec, FloorDate, MakeExpiration } from '../App.vue'
 
 const SearchURL = 'https://www.google.com/search?q='
 const SearchOption = '&tbm='
-const DayToMilliSec = 24 * 60 * 60 * 1000
 
 interface WordData {
   word: string;
@@ -57,13 +57,6 @@ const DefaultExpiration = {
   expiration: Date.now(),
   lastTerm: 1
 }
-
-const makeExpiration = (expirationDate: number, lastTerm: number) => { 
-  return {
-    expiration: expirationDate,
-    lastTerm: lastTerm
-  }
-} 
 
 const saveWord = (word: string, expiration: object) => {
   Storage.set({
@@ -82,7 +75,7 @@ const loadWord = async (result: Array<WordData>) => {
     if(exp.expiration <= Date.now()){
       result.push({
         word: key,
-        expiration: new Date(exp.expiration),
+        expiration: new Date(FloorDate(exp.expiration)),
         lastTerm: exp.lastTerm as number
       })
     }
@@ -139,7 +132,7 @@ export default defineComponent({
       })
     },
     wrong(data: WordData){
-      saveWord(data.word, makeExpiration(Date.now(), 1))
+      saveWord(data.word, MakeExpiration(Date.now(), 1))
       
       //間違えたやつは最後尾にする
       const wrongWord = this.expiredWords.shift();
@@ -150,14 +143,14 @@ export default defineComponent({
     ok(data: WordData){
       const term = Math.floor(data.lastTerm * 1.5)
       saveWord(data.word, 
-        makeExpiration(Date.now() + term * DayToMilliSec, term))
+        MakeExpiration(Date.now() + term * DayToMilliSec, term))
       
       this.expiredWords.shift()
     },
     easy(data: WordData){
       const term = Math.floor(data.lastTerm * 2.0)
       saveWord(data.word,
-       makeExpiration(Date.now() + term * DayToMilliSec, term))
+       MakeExpiration(Date.now() + term * DayToMilliSec, term))
 
       this.expiredWords.shift()
     },
