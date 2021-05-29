@@ -1,0 +1,6 @@
+{
+	"appId": "zitherSide.github.io.FlashImageCard",
+	"appName": "FlashImageCard",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}
