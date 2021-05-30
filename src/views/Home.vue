@@ -3,6 +3,8 @@
     <ion-content :fullscreen="true">
       <ion-item-divider/>
       <ion-item-divider/>
+      aaa
+      {{words}}
       <ion-card v-if="currentWord">
         <ion-card-header>
           <ion-card-title>{{currentWord ? currentWord.word : ''}}</ion-card-title>
@@ -26,7 +28,7 @@
       </ion-content>
 
       <ion-fab vertical="bottom" horizontal="end">
-        <ion-fab-button @click="showWordDlg"><ion-icon name="add"></ion-icon></ion-fab-button>
+        <ion-fab-button @click="showWordDlg">+</ion-fab-button>
       </ion-fab>
     </ion-content>
   </ion-page>
@@ -41,46 +43,11 @@ import { IonContent, IonPage,
 import { add, close } from 'ionicons/icons';
 import { defineComponent } from 'vue';
 import { InAppBrowser } from '@ionic-native/in-app-browser'
-import { Storage } from '@capacitor/storage'
-import { DayToMilliSec, FloorDate, MakeExpiration } from '../App.vue'
+import { useStore, ACTIONS, store, Word, MUTATIONS } from '../store'
+import { DayToMilliSec, banner } from '../App.vue'
 
 const SearchURL = 'https://www.google.com/search?q='
 const SearchOption = '&tbm='
-
-interface WordData {
-  word: string;
-  expiration: Date;
-  lastTerm: number;
-}
-
-const DefaultExpiration = {
-  expiration: Date.now(),
-  lastTerm: 1
-}
-
-const saveWord = (word: string, expiration: object) => {
-  Storage.set({
-    key: word,
-    value: JSON.stringify(expiration)
-  })
-}
-
-const loadWord = async (result: Array<WordData>) => {
-  const keysObj = await Storage.keys()
-
-  keysObj.keys.forEach( async key => {
-    const expJson = await Storage.get({ key })
-    const exp = JSON.parse(expJson.value || '')
-
-    if(exp.expiration <= Date.now()){
-      result.push({
-        word: key,
-        expiration: new Date(FloorDate(exp.expiration)),
-        lastTerm: exp.lastTerm as number
-      })
-    }
-  })
-}
 
 export default defineComponent({
   name: 'Home',
@@ -98,23 +65,28 @@ export default defineComponent({
     IonItemDivider
   },
   setup() {
+    useStore()
+    store.dispatch(ACTIONS.FETCH_WORDS)
+
     return {
       close,
-      add
+      add,
+      store
     }
   },
-  async mounted() {
-    loadWord(this.expiredWords)
-  },
-  data () {
-    return {
-      expiredWords: Array<WordData>()
-    }
+  mounted() {
+    banner()
   },
   computed: {
-    currentWord (): WordData {
-      return this.expiredWords[0]
-    }
+    words () {
+      return store.state.words
+    },
+    expiredWords (){
+      return store.state.words.filter( elem => elem.expiration <= Date.now())
+    },
+    currentWord () {
+      return store.state.words.filter( elem => elem.expiration <= Date.now())[0]
+    },
   },
   methods: {
     search(query: string, option: string){
@@ -126,33 +98,36 @@ export default defineComponent({
       InAppBrowser.create(url)
     },
     addWord(word: string){
-      Storage.set({
-        key: word,
-        value: JSON.stringify(DefaultExpiration)
+      store.commit(MUTATIONS.ADD_WORD, {
+        word: word,
+        expiration: Date.now(),
+        lastTerm: 1
       })
-    },
-    wrong(data: WordData){
-      saveWord(data.word, MakeExpiration(Date.now(), 1))
-      
-      //間違えたやつは最後尾にする
-      const wrongWord = this.expiredWords.shift();
-      if(wrongWord){
-        this.expiredWords.push(wrongWord)
-      }
-    },
-    ok(data: WordData){
-      const term = Math.floor(data.lastTerm * 1.5)
-      saveWord(data.word, 
-        MakeExpiration(Date.now() + term * DayToMilliSec, term))
-      
-      this.expiredWords.shift()
-    },
-    easy(data: WordData){
-      const term = Math.floor(data.lastTerm * 2.0)
-      saveWord(data.word,
-       MakeExpiration(Date.now() + term * DayToMilliSec, term))
 
-      this.expiredWords.shift()
+      store.dispatch(ACTIONS.SAVE_WORDS)
+    },
+    wrong(data: Word){
+      store.commit(MUTATIONS.UPDATE_WORD, data)
+      store.commit(MUTATIONS.SHIFT_ROTATE) //間違えたやつは最後尾にする
+      store.dispatch(ACTIONS.SAVE_WORDS)
+    },
+    ok(data: Word){
+      const term = Math.floor(data.lastTerm * 1.5)
+      store.commit(MUTATIONS.UPDATE_WORD, {
+        word: data.word,
+        expiration: Date.now() + term * DayToMilliSec,
+        lastTerm: term
+      })
+      store.dispatch(ACTIONS.SAVE_WORDS)
+    },
+    easy(data: Word){
+      const term = Math.floor(data.lastTerm * 2.0)
+      store.commit(MUTATIONS.UPDATE_WORD, {
+        word: data.word,
+        expiration: Date.now() + term * DayToMilliSec,
+        lastTerm: term
+      })
+      store.dispatch(ACTIONS.SAVE_WORDS)
     },
     async showWordDlg() {
       const dlg = await alertController.create({
@@ -167,10 +142,7 @@ export default defineComponent({
           {
             text: 'OK',
             handler: data => {
-              Storage.set({
-                key: data.word,
-                value: JSON.stringify(DefaultExpiration)
-              })
+              this.addWord(data.word)
             }
           },
           {

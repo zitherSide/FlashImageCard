@@ -26,7 +26,7 @@
                                     <span>
                                         <ion-row class="ion-align-items-end">
                                             <ion-col>Interval:</ion-col>
-                                            <ion-coL><ion-input v-model="word.lastTerm" @ion-change="OnExpirationChange(word.word, word.expiration, word.lastTerm)"></ion-input></ion-coL>
+                                            <ion-col><ion-input v-model="word.lastTerm" @ion-change="OnExpirationChange(word.word, word.expiration, word.lastTerm)"></ion-input></ion-col>
                                             <ion-col>days</ion-col>
                                         </ion-row>
                                     </span>
@@ -49,32 +49,13 @@
 import { IonList, IonItem, IonPage, IonCard, IonCardTitle, IonCardContent, IonCardHeader,
     IonTitle,
     IonGrid, IonRow, IonCol,
+    IonButton,
     IonDatetime, IonInput, IonContent,
     IonIcon } from '@ionic/vue'
 import { trash, close } from 'ionicons/icons'
 import { defineComponent } from 'vue'
-import { Storage } from '@capacitor/storage'
-import { FloorDate, MakeExpiration } from '../App.vue'
-
-interface WordData {
-    word: string;
-    expiration: string;
-    lastTerm: number;
-}
-
-const saveWord = (word: string, expiration: string, lastTerm: number) => 
-{
-    Storage.set({
-        key: word,
-        value: JSON.stringify(MakeExpiration(Date.parse(expiration), lastTerm))
-    })
-    alert('save: ' + word + expiration + lastTerm)
-}
-
-const eraseWord = (word: string) => {
-    alert('erase: ' + word)
-    Storage.remove({ key: word })
-}
+import { banner } from '../App.vue'
+import { store, MUTATIONS, ACTIONS} from '../store'
 
 export default defineComponent({
     name: 'Deck',
@@ -84,6 +65,7 @@ export default defineComponent({
         IonCard, IonCardTitle, IonCardHeader, IonCardContent,
         IonTitle,
         IonGrid, IonRow, IonCol,
+        IonButton,
         IonDatetime, IonInput, IonContent,
         IonIcon
     },
@@ -92,40 +74,38 @@ export default defineComponent({
             close, trash
         }
     },
-    data () {
-        return {
-            words: Array<WordData>(),
-            keys: Array<string>(),
+    computed : {
+        words(){
+            return store.state.words
         }
     },
     async mounted(){
-        const keysObj = await Storage.keys()
-        keysObj.keys.forEach( async key => {
-            const expJson = await Storage.get({ key })
-            const exp = JSON.parse(expJson.value || '')
-
-            this.words.push({
-                word: key,
-                expiration: new Date(FloorDate(exp.expiration)).toISOString(),
-                lastTerm: exp.lastTerm as number
-            })
-            this.keys.push(key)
-        })
+        banner()
     },
     methods: {
         OnWordUnfocused(newWord: string, oldWord: string, exp: string, lastTerm: number){
             if(newWord === oldWord){    //if there's no change, do nothing,
                 return
             }
-            saveWord(newWord, exp, lastTerm)
-            eraseWord(oldWord)
+            store.commit(MUTATIONS.UPDATE_WORD, {
+                word: newWord,
+                expiration: exp,
+                lastTerm: lastTerm
+            })
+            store.commit(MUTATIONS.REMOVE_WORD, oldWord)
+            store.dispatch(ACTIONS.SAVE_WORDS)
         },
         OnExpirationChange(word: string, exp: string, lastTerm: number){
-            saveWord(word, exp, lastTerm)
+            store.commit(MUTATIONS.UPDATE_WORD, {
+                word: word,
+                expiration: exp,
+                lastTerm: lastTerm
+            })
+            store.dispatch(ACTIONS.SAVE_WORDS)
         },
         OnDelete(word: string){
-            eraseWord(word)
-            this.words = this.words.filter( elem => elem.word !== word)
+            store.commit(MUTATIONS.REMOVE_WORD, word)
+            store.dispatch(ACTIONS.SAVE_WORDS)
         }
     }
 })
