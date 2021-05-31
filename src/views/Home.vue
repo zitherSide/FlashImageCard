@@ -3,8 +3,6 @@
     <ion-content :fullscreen="true">
       <ion-item-divider/>
       <ion-item-divider/>
-      aaa
-      {{words}}
       <ion-card v-if="currentWord">
         <ion-card-header>
           <ion-card-title>{{currentWord ? currentWord.word : ''}}</ion-card-title>

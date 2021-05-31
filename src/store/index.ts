@@ -62,7 +62,6 @@ const actions: ActionTree<State, any> = {
                 store.commit(MUTATIONS.ADD_WORD, {
                     word: key,
                     expiration: new Date(FloorDate(val.expiration)),
-                    //expiration: new Date(val.expiration),
                     lastTerm: val.lastTerm as number
                 })
             })

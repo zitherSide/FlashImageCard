@@ -76,7 +76,13 @@ export default defineComponent({
     },
     computed : {
         words(){
-            return store.state.words
+            return store.state.words.map( elem => {
+                return {
+                    word: elem.word,
+                    expiration: new Date(elem.expiration).toISOString(),
+                    lastTerm: elem.lastTerm
+                }
+            })
         }
     },
     async mounted(){
@@ -89,7 +95,7 @@ export default defineComponent({
             }
             store.commit(MUTATIONS.UPDATE_WORD, {
                 word: newWord,
-                expiration: exp,
+                expiration: Date.parse(exp),
                 lastTerm: lastTerm
             })
             store.commit(MUTATIONS.REMOVE_WORD, oldWord)
@@ -98,7 +104,7 @@ export default defineComponent({
         OnExpirationChange(word: string, exp: string, lastTerm: number){
             store.commit(MUTATIONS.UPDATE_WORD, {
                 word: word,
-                expiration: exp,
+                expiration: Date.parse(exp),
                 lastTerm: lastTerm
             })
             store.dispatch(ACTIONS.SAVE_WORDS)
