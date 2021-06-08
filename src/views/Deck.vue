@@ -2,55 +2,54 @@
     <ion-page>
         <ion-content>
             <ion-title>Deck</ion-title>
-            <ion-list>
-                <ion-item v-for="(word, i) in words" :key=i>
-                    <ion-card class="ion-margin" color="light">
-                        <ion-grid><ion-row>
-                            <ion-col size="2">
-                                <ion-card-header class="ion-padding">
-                                    <ion-card-title>
-                                        <ion-input v-model="word.word" 
-                                            @ion-blur="OnWordUnfocused(word.word, keys[i], word.expiration, word.lastTerm)">
-                                        </ion-input>
-                                    </ion-card-title>
-                                </ion-card-header>
-                            </ion-col>
+            <ion-item-divider></ion-item-divider>
 
-                            <ion-col size="8">
-                                <ion-card-content>
-                                    <ion-grid>
-                                        <ion-row class="ion-align-items-end">
-                                            <ion-col>Review Data:</ion-col>
-                                            <ion-col><ion-datetime v-model="word.expiration" @ionChange="OnExpirationChange(word.word, word.expiration, word.lastTerm)"></ion-datetime></ion-col>    
-                                        </ion-row>
-                                    <span>
-                                        <ion-row class="ion-align-items-end">
-                                            <ion-col>Interval:</ion-col>
-                                            <ion-col><ion-input v-model="word.lastTerm" @ion-change="OnExpirationChange(word.word, word.expiration, word.lastTerm)"></ion-input></ion-col>
-                                            <ion-col>days</ion-col>
-                                        </ion-row>
-                                    </span>
-                                    </ion-grid>
-                                </ion-card-content>
-                            </ion-col>
+            <ion-grid>
+                <ion-row>
+                    <ion-col><h2>Word</h2></ion-col>
+                    <ion-col><h2>Review Date</h2></ion-col>
+                    <ion-col><h2>Interval(days)</h2></ion-col>
+                    <ion-col><h2>Actions</h2></ion-col>
+                </ion-row>
+                <ion-row></ion-row>
+                <ion-item-divider sticky></ion-item-divider>
 
-                            <ion-col class="ion-align-self-center" size="1">
-                                <ion-button @click="OnDelete(word.word)" color="danger"><ion-icon name="close"></ion-icon></ion-button>
-                            </ion-col>
-                        </ion-row></ion-grid>
-                    </ion-card>
-                </ion-item>
-            </ion-list>
+                <ion-row v-for="(word, i) in words" :key="i">
+                    <ion-col>
+                        <ion-input v-model="word.word" 
+                            @ion-blur="OnWordUnfocused(word.word, keys[i], word.expiration, word.lastTerm)">
+                        </ion-input>
+                    </ion-col>
+                    
+                    <ion-col>
+                        <ion-datetime v-model="word.expiration" @ionChange="OnExpirationChange(word.word, word.expiration, word.lastTerm)"></ion-datetime>    
+                    </ion-col>
+
+                    <ion-col>
+                        <ion-input v-model="word.lastTerm" @ionChange="OnExpirationChange(word.word, word.expiration, word.lastTerm)"></ion-input>    
+                    </ion-col>
+
+                    <ion-col>
+                        <ion-button @click="OnDelete(word.word)" color="danger"><ion-icon name="close"></ion-icon></ion-button>
+                    </ion-col>
+
+                    <ion-item-divider></ion-item-divider>
+
+                </ion-row>
+            </ion-grid>
+
         </ion-content>
     </ion-page>
 </template>
 
 <script lang='ts'>
-import { IonList, IonItem, IonPage, IonCard, IonCardTitle, IonCardContent, IonCardHeader,
-    IonTitle,
+import { //IonList, IonItem, IonPage,
+// IonCard, IonCardTitle, IonCardContent, IonCardHeader,
+    IonTitle, IonPage,
     IonGrid, IonRow, IonCol,
     IonButton,
     IonDatetime, IonInput, IonContent,
+    IonItemDivider,
     IonIcon } from '@ionic/vue'
 import { trash, close } from 'ionicons/icons'
 import { defineComponent } from 'vue'
@@ -60,14 +59,15 @@ import { store, MUTATIONS, ACTIONS} from '../store'
 export default defineComponent({
     name: 'Deck',
     components: {
-        IonList, IonItem,
+        //IonList, IonItem,
         IonPage,
-        IonCard, IonCardTitle, IonCardHeader, IonCardContent,
+        //IonCard, IonCardTitle, IonCardHeader, IonCardContent,
         IonTitle,
         IonGrid, IonRow, IonCol,
         IonButton,
         IonDatetime, IonInput, IonContent,
-        IonIcon
+        IonIcon,
+        IonItemDivider
     },
     setup() {
         return {

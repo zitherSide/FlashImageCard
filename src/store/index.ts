@@ -13,7 +13,7 @@ export interface State {
     words: Word[];
 }
 
-export const key: InjectionKey<Store<State>> = Symbol()
+export const key: InjectionKey<Store<State>> = Symbol('')
 const state: State = {
     words: []
 }
@@ -61,7 +61,7 @@ const actions: ActionTree<State, any> = {
                 const val = JSON.parse(valStr.value || '')
                 store.commit(MUTATIONS.ADD_WORD, {
                     word: key,
-                    expiration: new Date(FloorDate(val.expiration)),
+                    expiration: FloorDate(val.expiration),
                     lastTerm: val.lastTerm as number
                 })
             })
@@ -71,7 +71,7 @@ const actions: ActionTree<State, any> = {
         store.state.words.forEach( word => {
             const key = word.word
             const valObj = {
-                expiration: word.expiration,
+                expiration: FloorDate(word.expiration),
                 lastTerm: word.lastTerm
             }
             const val = JSON.stringify(valObj)

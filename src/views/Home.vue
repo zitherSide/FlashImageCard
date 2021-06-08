@@ -3,27 +3,29 @@
     <ion-content :fullscreen="true">
       <ion-item-divider/>
       <ion-item-divider/>
-      <ion-card v-if="currentWord">
-        <ion-card-header>
-          <ion-card-title>{{currentWord ? currentWord.word : ''}}</ion-card-title>
-          <ion-card-subtitle>{{currentWord}}</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-buttons>
-            <ion-button @click="search(currentWord.word, 'isch')">Image</ion-button>
-            <ion-button @click="search(currentWord.word)">Text</ion-button>
-            <ion-button @click="search(currentWord.word, 'vid')">Video</ion-button>
-          </ion-buttons>
-          <ion-buttons>
-            <ion-button color="danger" @click="wrong(currentWord)"><ion-icon name="close"></ion-icon></ion-button>
-            <ion-button color="success" @click="ok(currentWord)">o<ion-icon name="add"></ion-icon></ion-button>
-            <ion-button color="success" @click="easy(currentWord)">easy</ion-button>
-          </ion-buttons>
-        </ion-card-content>
-      </ion-card>
-      <ion-content v-else>
-        Done!
-      </ion-content>
+
+      <ion-list>
+        <ion-item v-for="(word, i) in expiredWords" :key="i">
+          <ion-card >
+            <ion-card-header>
+              <ion-card-title>{{word.word}}</ion-card-title>
+              <!-- <ion-card-subtitle>{{word}}</ion-card-subtitle> -->
+            </ion-card-header>
+            <ion-card-content>
+              <ion-buttons>
+                <ion-button @click="search(word.word, 'isch')">Image</ion-button>
+                <ion-button @click="search(word.word)">Text</ion-button>
+                <ion-button @click="search(word.word, 'vid')">Video</ion-button>
+              </ion-buttons>
+              <ion-buttons>
+                <ion-button color="danger" @click="wrong(word)"><ion-icon name="close"></ion-icon></ion-button>
+                <ion-button color="success" @click="ok(word)">o<ion-icon name="add"></ion-icon></ion-button>
+                <ion-button color="success" @click="easy(word)">easy</ion-button>
+              </ion-buttons>
+            </ion-card-content>
+          </ion-card>
+        </ion-item>
+      </ion-list>
 
       <ion-fab vertical="bottom" horizontal="end">
         <ion-fab-button @click="showWordDlg">+</ion-fab-button>
@@ -35,8 +37,9 @@
 <script lang="ts">
 import { IonContent, IonPage, 
   IonFab, IonFabButton, IonIcon, IonButton, IonButtons,
-  IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle,
+  IonCard, IonCardHeader, IonCardContent, IonCardTitle, //IonCardSubtitle,
   IonItemDivider,
+  IonList, IonItem,
   alertController } from '@ionic/vue';
 import { add, close } from 'ionicons/icons';
 import { defineComponent } from 'vue';
@@ -52,19 +55,16 @@ export default defineComponent({
   components: {
     IonContent,
     IonPage,
-    //IonGrid,
-    //IonCol,
-    //IonRow,
     IonFab,
     IonFabButton,
     IonIcon,
     IonButton, IonButtons,
-    IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle,
-    IonItemDivider
+    IonCard, IonCardHeader, IonCardContent, IonCardTitle, //IonCardSubtitle,
+    IonItemDivider,
+    IonList, IonItem
   },
   setup() {
     useStore()
-    store.dispatch(ACTIONS.FETCH_WORDS)
 
     return {
       close,
@@ -81,9 +81,6 @@ export default defineComponent({
     },
     expiredWords (){
       return store.state.words.filter( elem => elem.expiration <= Date.now())
-    },
-    currentWord () {
-      return store.state.words.filter( elem => elem.expiration <= Date.now())[0]
     },
   },
   methods: {
@@ -105,6 +102,7 @@ export default defineComponent({
       store.dispatch(ACTIONS.SAVE_WORDS)
     },
     wrong(data: Word){
+      data.lastTerm = 1
       store.commit(MUTATIONS.UPDATE_WORD, data)
       store.commit(MUTATIONS.SHIFT_ROTATE) //間違えたやつは最後尾にする
       store.dispatch(ACTIONS.SAVE_WORDS)
