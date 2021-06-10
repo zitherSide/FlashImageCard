@@ -44,7 +44,11 @@ const mutations: MutationTree<State> = {
     },
     [MUTATIONS.UPDATE_WORD](state, word: Word){
         const index = state.words.findIndex( elem => elem.word === word.word)
-        state.words[index] = word
+        if(index == -1){
+            state.words.push(word)
+        }else{
+            state.words[index] = word
+        }
     },
     [MUTATIONS.SHIFT_ROTATE](state){
         const shifted = state.words.shift()

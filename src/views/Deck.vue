@@ -16,8 +16,8 @@
 
                 <ion-row v-for="(word, i) in words" :key="i">
                     <ion-col>
-                        <ion-input v-model="word.word" 
-                            @ion-blur="OnWordUnfocused(word.word, keys[i], word.expiration, word.lastTerm)">
+                        <ion-input v-model="word.word"
+                            @ionBlur="OnWordUnfocused(word.word, storedWords[i].word, word.expiration, word.lastTerm)">
                         </ion-input>
                     </ion-col>
                     
@@ -83,6 +83,9 @@ export default defineComponent({
                     lastTerm: elem.lastTerm
                 }
             })
+        },
+        storedWords(){
+            return store.state.words
         }
     },
     async mounted(){
@@ -100,6 +103,7 @@ export default defineComponent({
             })
             store.commit(MUTATIONS.REMOVE_WORD, oldWord)
             store.dispatch(ACTIONS.SAVE_WORDS)
+            
         },
         OnExpirationChange(word: string, exp: string, lastTerm: number){
             store.commit(MUTATIONS.UPDATE_WORD, {
