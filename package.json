@@ -10,6 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^3.0.1",
     "@capacitor-community/sqlite": "^2.9.16",
     "@capacitor/android": "3.0.0",
     "@capacitor/app": "1.0.0",

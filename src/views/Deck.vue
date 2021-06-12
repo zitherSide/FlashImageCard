@@ -89,7 +89,7 @@ export default defineComponent({
         }
     },
     async mounted(){
-        //banner()
+        banner()
     },
     methods: {
         OnWordUnfocused(newWord: string, oldWord: string, exp: string, lastTerm: number){

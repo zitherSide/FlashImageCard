@@ -18,29 +18,29 @@
 import { IonApp, IonRouterOutlet, IonButton, IonButtons,
   IonToolbar, IonTitle } from '@ionic/vue';
 import { defineComponent } from 'vue';
-//import { AdMob, BannerAdOptions, BannerAdSize, BannerAdPosition, BannerAdPluginEvents, AdMobBannerSize } from '@capacitor-community/admob';
+import { AdMob, BannerAdOptions, BannerAdSize, BannerAdPosition, BannerAdPluginEvents, AdMobBannerSize } from '@capacitor-community/admob';
 
 export async function banner(): Promise<void> {
-    // AdMob.addListener(BannerAdPluginEvents.Loaded, () => {
-    //   // Subscribe Banner Event Listener
-    // });
+    AdMob.addListener(BannerAdPluginEvents.Loaded, () => {
+      // Subscribe Banner Event Listener
+    });
 
-    // AdMob.addListener(BannerAdPluginEvents.SizeChanged, (size: AdMobBannerSize) => {
-    //   // Subscribe Change Banner Size
-    // });
+    AdMob.addListener(BannerAdPluginEvents.SizeChanged, (size: AdMobBannerSize) => {
+      // Subscribe Change Banner Size
+    });
 
-    // const options: BannerAdOptions = {
-    //   adId: 'YOUR ADID',
-    //   adSize: BannerAdSize.BANNER,
-    //   position: BannerAdPosition.BOTTOM_CENTER,
-    //   margin: 0,
-    //   isTesting: true,
-    //   //npa: true
-    // };
-    // AdMob.showBanner(options).then(
-    //   value => console.log('success', value),
-    //   err => console.log('err', err)
-    // )
+    const options: BannerAdOptions = {
+      adId: 'YOUR ADID',
+      adSize: BannerAdSize.BANNER,
+      position: BannerAdPosition.BOTTOM_CENTER,
+      margin: 0,
+      //isTesting: true,
+      //npa: true
+    };
+    AdMob.showBanner(options).then(
+      value => console.log('success', value),
+      err => console.log('err', err)
+    )
 }
 
 export const DayToMilliSec = 24 * 60 * 60 * 1000

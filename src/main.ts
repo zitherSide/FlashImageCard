@@ -24,13 +24,27 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 import {store, key, ACTIONS} from './store'
 
+import { AdMob } from '@capacitor-community/admob';
+
+export async function initialize(): Promise<void> {
+  AdMob.initialize({
+    requestTrackingAuthorization: true,
+    //testingDevices: ['2077ef9a63d2b398840261c8221a0c9b'],
+    //initializeForTesting: true,
+  });
+}
+
 const app = createApp(App)
   .use(IonicVue)
   .use(router)
   .use(store, key)
 
 store.dispatch(ACTIONS.FETCH_WORDS)
-
-router.isReady().then(() => {
-  app.mount('#app');
-});
+  .then( () => {
+    return initialize()
+  })
+  .then( () => {
+    router.isReady().then(() => {
+      app.mount('#app');
+    });
+  })
