@@ -54,7 +54,7 @@ import { //IonList, IonItem, IonPage,
 import { trash, close } from 'ionicons/icons'
 import { defineComponent } from 'vue'
 import { banner } from '../App.vue'
-import { store, MUTATIONS, ACTIONS} from '../store'
+import { store, useStore, MUTATIONS, ACTIONS} from '../store'
 
 export default defineComponent({
     name: 'Deck',
@@ -70,6 +70,8 @@ export default defineComponent({
         IonItemDivider
     },
     setup() {
+        useStore()
+
         return {
             close, trash
         }

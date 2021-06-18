@@ -108,7 +108,7 @@ export default defineComponent({
       store.dispatch(ACTIONS.SAVE_WORDS)
     },
     ok(data: Word){
-      const term = Math.max(data.lastTerm, Math.floor(data.lastTerm * 1.5))
+      const term = Math.max(data.lastTerm + 1, Math.floor(data.lastTerm * 1.5))
       store.commit(MUTATIONS.UPDATE_WORD, {
         word: data.word,
         expiration: Date.now() + term * DayToMilliSec,
