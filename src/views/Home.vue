@@ -27,7 +27,7 @@
         </ion-item>
       </ion-list>
 
-      <ion-fab vertical="bottom" horizontal="end">
+      <ion-fab vertical="center" horizontal="end">
         <ion-fab-button @click="showWordDlg">+</ion-fab-button>
       </ion-fab>
     </ion-content>
